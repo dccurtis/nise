@@ -26,8 +26,8 @@ from nise.generators.generator import AbstractGenerator
 OCP_COLUMNS = ('report_period_start', 'report_period_end', 'pod', 'namespace',
                'node', 'interval_start', 'interval_end',
                'pod_usage_cpu_core_seconds', 'pod_request_cpu_core_seconds',
-               'pod_limit_cpu_core_seconds', 'pod_usage_memory_byte_seconds',
-               'pod_request_memory_byte_seconds', 'pod_limit_memory_byte_seconds',
+               'pod_limit_cpu_cores', 'pod_usage_memory_byte_seconds',
+               'pod_request_memory_byte_seconds', 'pod_limit_memory_bytes',
                'node_capacity_cpu_cores', 'node_capacity_cpu_core_seconds',
                'node_capacity_memory_bytes', 'node_capacity_memory_byte_seconds',
                'pod_labels')
@@ -180,10 +180,10 @@ class OCPGenerator(AbstractGenerator):
         mem = round(uniform(250000000.0, mem_request), 2)
         pod['pod_usage_cpu_core_seconds'] = pod_seconds * cpu
         pod['pod_request_cpu_core_seconds'] = pod_seconds * cpu_request
-        pod['pod_limit_cpu_core_seconds'] = pod_seconds * cpu_limit
+        pod['pod_limit_cpu_cores'] = pod_seconds * cpu_limit
         pod['pod_usage_memory_byte_seconds'] = pod_seconds * mem
         pod['pod_request_memory_byte_seconds'] = pod_seconds * mem_request
-        pod['pod_limit_memory_byte_seconds'] = pod_seconds * mem_limit
+        pod['pod_limit_memory_bytes'] = pod_seconds * mem_limit
         row.update(pod)
         return row
 
