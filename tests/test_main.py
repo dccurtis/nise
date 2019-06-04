@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
+from tempfile import NamedTemporaryFile
 from datetime import datetime
 from unittest import TestCase
 
@@ -114,7 +115,6 @@ class CommandLineTestCase(TestCase):
         data_missing = _load_yaml_file(None)
         self.assertIsNone(data_missing)
 
-
     def test_load_static_report_data(self):
         """
         Test to load static report data from option.
@@ -130,8 +130,6 @@ class CommandLineTestCase(TestCase):
         _load_static_report_data(missing_options)
         self.assertIsNone(missing_options.get('static_report_data'))
 
-
-
     def test_load_static_report_data_no_start_date(self):
         """
         Test to load static report data from option with no start date.
@@ -141,3 +139,21 @@ class CommandLineTestCase(TestCase):
         _load_static_report_data(options)
         self.assertIsNotNone(options.get('start_date'))
         self.assertIsNotNone(options.get('end_date'))
+
+    def test_load_static_report_data_generated_start_dates(self):
+        """
+        Test to load static report data and verify generated start dates.
+        """
+        now = datetime.now()
+        date_str = now.strftime('%m-%d-%Y')
+        test_matrix = [{'yaml': str('generators:{OCPGenerator:{start_date: last_month}'),
+                        'expected_start_value': '05-01-2019'}]
+        for test in test_matrix:
+            t_file = NamedTemporaryFile(mode='wb', suffix='.yaml')
+            with open(t_file.name, 'wb') as f_out:
+                f_out.write(str.encode(test.get('yaml')))
+            import pdb; pdb.set_trace()
+            options = {}
+            options['static_report_file'] = t_file.name
+            _load_static_report_data(options)
+            self.assertEqual(options.get('start_date'), test.get('expected_start_value'))
