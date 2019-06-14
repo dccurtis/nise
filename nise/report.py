@@ -23,6 +23,7 @@ import importlib
 import os
 import random
 import shutil
+import tempfile
 import string
 import tarfile
 from datetime import datetime
@@ -54,7 +55,7 @@ from nise.upload import upload_to_s3
 
 def create_temporary_copy(path, temp_file_name, temp_dir_name='None'):
     """Create temporary copy of a file."""
-    temp_dir = gettempdir()
+    temp_dir = tempfile.mkdtemp()
     if temp_dir_name:
         new_dir = os.path.join(temp_dir, temp_dir_name)
         if not os.path.exists(new_dir):
@@ -85,6 +86,12 @@ def _gzip_report(report_path):
 
 def _tar_gzip_report(temp_dir):
     """Compress the report and manifest to tarfile."""
+    for file in os.listdir(temp_dir):
+        if file.endswith('1.csv'):
+            print('removing storage report')
+            full_path = '{}/{}'.format(temp_dir, str(file))
+            # os.remove(full_path)
+
     t_file = NamedTemporaryFile(mode='w', suffix='.tar.gz', delete=False)
 
     with tarfile.open(t_file.name, 'w:gz') as tar:
@@ -122,6 +129,7 @@ def aws_route_file(bucket_name, bucket_file_path, local_path):
 def ocp_route_file(insights_upload, local_path):
     """Route file to either Upload Service or local filesystem."""
     if os.path.isdir(insights_upload):
+        shutil.copy2(local_path, os.getcwd())
         extract_payload(insights_upload,
                         local_path)
     else:
